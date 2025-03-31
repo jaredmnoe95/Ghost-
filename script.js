@@ -1,18 +1,20 @@
 // Firebase Setup
-import { getDatabase, ref, set, push, onValue, update, remove } from 'https://www.gstatic.com/firebasejs/11.5.0/firebase-database.js';
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.5.0/firebase-app.js';
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-app.js";
+import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-analytics.js";
+import { getDatabase, ref, set, push, onValue, update, remove } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-database.js";
 
-const app = initializeApp({
+const firebaseConfig = {
   apiKey: "AIzaSyDkWIOJ7DaQ7pozupt84f3j6JbCPKdYZnU",
   authDomain: "ghost-8921c.firebaseapp.com",
-  databaseURL: "https://ghost-8921c.firebaseio.com",
   projectId: "ghost-8921c",
-  storageBucket: "ghost-8921c.appspot.com",
+  storageBucket: "ghost-8921c.firebasestorage.app",
   messagingSenderId: "282650978484",
   appId: "1:282650978484:web:e4c1ccb63719eb04c78fe1",
   measurementId: "G-P1HW9LHPR4"
-});
+};
 
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
 const db = getDatabase(app);
 
 // Function to save code name
