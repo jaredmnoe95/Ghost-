@@ -1,9 +1,10 @@
-// Firebase Configuration
+// Import the functions you need from the SDKs you need
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-app.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-analytics.js";
 import { getDatabase, ref, push, onChildAdded, remove } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-database.js";
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-auth.js";
 
-// Firebase config object
+// Firebase configuration
 const firebaseConfig = {
   apiKey: "AIzaSyDkWIOJ7DaQ7pozupt84f3j6JbCPKdYZnU",
   authDomain: "ghost-8921c.firebaseapp.com",
@@ -18,8 +19,9 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 const db = getDatabase(app);
+const auth = getAuth(app);
 
-// Save the Code Name in LocalStorage
+// Save Code Name
 function saveCodeName() {
   const codeName = document.getElementById("codeName").value;
   if (codeName) {
@@ -29,7 +31,7 @@ function saveCodeName() {
   }
 }
 
-// Save the PIN in LocalStorage
+// Save PIN Number
 function savePIN() {
   const pin = document.getElementById("setPIN").value;
   if (pin.length === 4) {
@@ -43,14 +45,14 @@ function savePIN() {
   }
 }
 
-// Switch between tabs
+// Show selected tab (Messaging, Security Alerts, Private Search)
 function showTab(tabId) {
   const tabs = document.querySelectorAll('.tab');
   tabs.forEach(tab => tab.style.display = 'none');
   document.getElementById(tabId).style.display = 'block';
 }
 
-// Send an encrypted message
+// Send message to database
 function sendMessage() {
   const sender = localStorage.getItem("ghostName");
   const message = document.getElementById("messageBox").value;
@@ -70,7 +72,7 @@ function sendMessage() {
   }
 }
 
-// Display all the messages in the thread
+// Load messages from the database and display them
 function loadMessages() {
   const thread = document.getElementById("messageThread");
   thread.innerHTML = ""; // Clear previous messages
@@ -87,14 +89,14 @@ function loadMessages() {
   });
 }
 
-// Nuke all messages
+// Nuclear button to delete all messages from Firebase
 function nuclearPurge() {
   const msgRef = ref(db, "messages");
   remove(msgRef);
   document.getElementById("messageThread").innerHTML = ""; // Clear message thread immediately
 }
 
-// Send message to a specific recipient
+// Send encrypted message to specific user
 function sendMessageTo() {
   const sender = localStorage.getItem("ghostName");
   const receiver = document.getElementById("toUser").value;
@@ -109,9 +111,9 @@ function sendMessageTo() {
       message,
       timestamp
     });
-    document.getElementById("messageInput").value = ""; // Clear the input box
+    document.getElementById("messageInput").value = ""; // Clear input field after sending
     loadMessages(); // Refresh the message list
   } else {
-    alert("Both recipient and message fields are required.");
+    alert("Please fill out both recipient name and message.");
   }
 }
