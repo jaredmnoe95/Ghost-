@@ -81,4 +81,48 @@
     const analytics = getAnalytics(app);
   </script>
 
+  <script>
+    let messages = []; // Store messages in this array
+
+    // Function to send a message
+    function sendMessage() {
+      const messageInput = document.getElementById('messageBox');
+      const messageText = messageInput.value;
+
+      if (messageText !== '') {
+        // Add the message to the messages array
+        messages.push({ text: messageText, type: 'sent' });
+
+        // Display the message on the screen
+        displayMessages();
+
+        // Clear the input field
+        messageInput.value = '';
+      }
+    }
+
+    // Function to display messages
+    function displayMessages() {
+      const messageThread = document.getElementById('messageThread');
+      messageThread.innerHTML = ''; // Clear current displayed messages
+
+      // Loop through the stored messages and display them
+      messages.forEach((message) => {
+        const messageElement = document.createElement('div');
+        messageElement.textContent = message.text;
+        messageElement.classList.add(message.type); // Add a class for styling (e.g., 'sent' or 'received')
+        messageThread.appendChild(messageElement);
+      });
+    }
+
+    // Function to nuke all messages
+    function nuclearPurge() {
+      messages = []; // Clear the array holding messages
+      displayMessages(); // Re-render the message board (empty now)
+    }
+  </script>
+
   <script src="script.js" type="module"></script>
+
+</body>
+</html>
