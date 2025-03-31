@@ -1,76 +1,119 @@
-document.addEventListener("DOMContentLoaded", () => {
-  // Initializing variables
-  const setupSection = document.getElementById("setup");
-  const pinSection = document.getElementById("pinScreen");
-  const appUISection = document.getElementById("appUI");
+// Import Firebase functions
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-app.js";
+import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-analytics.js";
+import { getDatabase, ref, set, onValue, remove } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-database.js";
 
-  // Elements for user inputs
-  const codeNameInput = document.getElementById("codeName");
-  const pinInput = document.getElementById("setPIN");
+// Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyDkWIOJ7DaQ7pozupt84f3j6JbCPKdYZnU",
+  authDomain: "ghost-8921c.firebaseapp.com",
+  projectId: "ghost-8921c",
+  storageBucket: "ghost-8921c.firebasestorage.app",
+  messagingSenderId: "282650978484",
+  appId: "1:282650978484:web:e4c1ccb63719eb04c78fe1",
+  measurementId: "G-P1HW9LHPR4"
+};
 
-  // Save code name function
-  window.saveCodeName = () => {
-    const codeName = codeNameInput.value.trim();
-    if (codeName) {
-      // Save the code name, and move to PIN setup
-      localStorage.setItem("codeName", codeName);
-      setupSection.style.display = "none";
-      pinSection.style.display = "block";
-    } else {
-      alert("Please enter a valid code name.");
-    }
-  };
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+const db = getDatabase(app);
 
-  // Save PIN function
-  window.savePIN = () => {
-    const pin = pinInput.value.trim();
-    if (pin.length === 4 && !isNaN(pin)) {
-      // Save the PIN, and show the main app UI
-      localStorage.setItem("pin", pin);
-      pinSection.style.display = "none";
-      appUISection.style.display = "block";
-      document.getElementById("userTag").textContent = `Ghost Access Granted, ${localStorage.getItem('codeName')}`;
-    } else {
-      alert("Please enter a valid 4-digit PIN.");
-    }
-  };
+// Save Code Name to Firebase
+function saveCodeName() {
+  const codeName = document.getElementById("codeName").value;
+  const userId = Date.now(); // Unique ID for each user based on the timestamp
+  const codeNameRef = ref(db, 'users/' + userId);
 
-  // Show tabs (Messages, Alerts, Search)
-  window.showTab = (tab) => {
-    const tabs = document.querySelectorAll(".tab");
-    tabs.forEach((tabContent) => tabContent.style.display = "none");
-    document.getElementById(tab).style.display = "block";
-  };
+  set(codeNameRef, {
+    codeName: codeName,
+  }).then(() => {
+    // Move to next section
+    document.getElementById("setup").style.display = "none";
+    document.getElementById("pinScreen").style.display = "block";
+  });
+}
 
-  // Send a message function (for simplicity, just log the message here)
-  window.sendMessage = () => {
-    const messageBox = document.getElementById("messageBox");
-    const message = messageBox.value.trim();
-    if (message) {
-      alert("Message sent: " + message);
-      messageBox.value = "";
-    } else {
-      alert("Please enter a message.");
-    }
-  };
+// Save PIN to Firebase
+function savePIN() {
+  const pin = document.getElementById("setPIN").value;
+  const userId = Date.now();
+  const pinRef = ref(db, 'pins/' + userId);
 
-  // Nuke (clear all messages)
-  window.nuclearPurge = () => {
-    const messageBox = document.getElementById("messageBox");
-    messageBox.value = "";
-    alert("All messages cleared.");
-  };
+  set(pinRef, {
+    pin: pin,
+  }).then(() => {
+    // Move to main app
+    document.getElementById("pinScreen").style.display = "none";
+    document.getElementById("appUI").style.display = "block";
+    document.getElementById("userTag").textContent = "Ghost Access Granted";
+  });
+}
 
-  // Send encrypted message to another user
-  window.sendMessageTo = () => {
-    const toUser = document.getElementById("toUser").value.trim();
-    const messageInput = document.getElementById("messageInput").value.trim();
-    if (toUser && messageInput) {
-      alert(`Encrypted message sent to ${toUser}: ${messageInput}`);
-      document.getElementById("toUser").value = "";
-      document.getElementById("messageInput").value = "";
-    } else {
-      alert("Please fill in both recipient and message.");
-    }
-  };
+// Display the messages from Firebase
+function displayMessage(message) {
+  const messageBoard = document.getElementById("messageBoard");
+  const messageElement = document.createElement("div");
+  messageElement.textContent = message;
+  messageBoard.appendChild(messageElement);
+}
+
+// Real-time listener for messages in Firebase
+const messagesRef = ref(db, 'messages/');
+onValue(messagesRef, (snapshot) => {
+  const data = snapshot.val();
+  const messageBoard = document.getElementById("messageBoard");
+  messageBoard.innerHTML = ""; // Clear previous messages
+  for (const messageId in data) {
+    const message = data[messageId].message;
+    displayMessage(message);
+  }
 });
+
+// Send a message to Firebase
+function sendMessage() {
+  const message = document.getElementById("messageBox").value;
+  const messageRef = ref(db, 'messages/' + Date.now());
+
+  set(messageRef, {
+    message: message,
+  }).then(() => {
+    document.getElementById("messageBox").value = ""; // Clear message input field
+  });
+}
+
+// Nuke button functionality to clear all messages from Firebase
+function nuclearPurge() {
+  const messagesRef = ref(db, 'messages/');
+  remove(messagesRef).then(() => {
+    document.getElementById("messageBoard").innerHTML = ''; // Clear messages from the UI
+  });
+}
+
+// Handle sending encrypted message (in real-time)
+function sendMessageTo() {
+  const recipientName = document.getElementById("toUser").value;
+  const messageInput = document.getElementById("messageInput").value;
+
+  if (recipientName && messageInput) {
+    const encryptedMessage = encryptMessage(messageInput); // Encrypt message before storing it
+    const messageRef = ref(db, 'messages/' + Date.now());
+
+    set(messageRef, {
+      recipient: recipientName,
+      message: encryptedMessage,
+    }).then(() => {
+      document.getElementById("messageInput").value = ""; // Clear message input field
+    });
+  }
+}
+
+// Simple function to simulate message encryption (this would be more complex in a real app)
+function encryptMessage(message) {
+  return btoa(message); // Using Base64 encoding to simulate encryption
+}
+
+// Event listeners for buttons
+document.getElementById("nukeButton").addEventListener("click", nuclearPurge);
+document.getElementById("sendButton").addEventListener("click", sendMessage);
+document.getElementById("sendEncryptedButton").addEventListener("click", sendMessageTo);
