@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ghost Web App</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Setup Section -->
+  <div id="setup">
+    <h2>Welcome to Ghost App</h2>
+    <input type="text" id="codeName" placeholder="Enter your code name"/>
+    <button onclick="saveCodeName()">Next</button>
+  </div>
+
+  <!-- PIN Setup Section -->
+  <div id="pinScreen" style="display:none;">
+    <h2>Set your 4-Digit PIN</h2>
+    <input type="password" id="setPIN" maxlength="4" placeholder="Set 4-digit PIN" />
+    <button onclick="savePIN()">Save & Continue</button>
+  </div>
+
+  <!-- Main App UI -->
+  <div id="appUI" style="display:none;">
+    <h2 id="userTag">Ghost Access Granted</h2>
+    <div id="nav">
+      <button onclick="showTab('messaging')">Messages</button>
+      <button onclick="showTab('alerts')">Security Alerts</button>
+      <button onclick="showTab('search')">Private Search</button>
+    </div>
+  
+    <div class="tab" id="messaging">
+      <h3>Encrypted Messaging</h3>
+      <textarea id="messageBox" placeholder="Enter encrypted message..."></textarea>
+      <button onclick="sendMessage()">Send</button>
+      <button class="nuke" onclick="nuclearPurge()">NUKE</button>
+    </div>
+  
+    <hr>
+  
+    <h3>New Real-Time Messaging</h3>
+    <input id="toUser" placeholder="Recipient name" />
+    <input id="messageInput" placeholder="Type a message" />
+    <button onclick="sendMessageTo()">Send Encrypted</button>
+    <div id="messageThread"></div>
+  
+    <div class="tab" id="alerts">
+      <h3>Ghost Security Notifications</h3>
+      <ul id="alertsLog">
+        <!-- Real-time alerts will be added here -->
+      </ul>
+    </div>
+  
+    <div class="tab" id="search">
+      <h3>Anonymous Web Search</h3>
+      <form target="_blank" action="https://duckduckgo.com/">
+        <input type="text" name="q" placeholder="Search DuckDuckGo..." />
+        <button type="submit">Search</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Firebase Configuration Script -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-analytics.js";
+  
+    const firebaseConfig = {
+      apiKey: "AIzaSyDkWIOJ7DaQ7pozupt84f3j6JbCPKdYZnU",
+      authDomain: "ghost-8921c.firebaseapp.com",
+      projectId: "ghost-8921c",
+      storageBucket: "ghost-8921c.firebasestorage.app",
+      messagingSenderId: "282650978484",
+      appId: "1:282650978484:web:e4c1ccb63719eb04c78fe1",
+      measurementId: "G-P1HW9LHPR4"
+    };
+  
+    const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
+  </script>
+
+  <script src="script.js" type="module"></script>
+
+</body>
+</html>
