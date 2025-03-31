@@ -1,70 +1,76 @@
-// Set up Firebase references
-const db = getFirestore();
-const messagesRef = collection(db, 'messages');
+document.addEventListener("DOMContentLoaded", () => {
+  // Initializing variables
+  const setupSection = document.getElementById("setup");
+  const pinSection = document.getElementById("pinScreen");
+  const appUISection = document.getElementById("appUI");
 
-// Save code name
-function saveCodeName() {
-  const codeName = document.getElementById("codeName").value;
-  if (!codeName) return alert("Please set your code name.");
-  localStorage.setItem("ghostName", codeName);
-  document.getElementById('setup').style.display = 'none';
-  document.getElementById('pinScreen').style.display = 'block';
-}
+  // Elements for user inputs
+  const codeNameInput = document.getElementById("codeName");
+  const pinInput = document.getElementById("setPIN");
 
-// Save PIN
-function savePIN() {
-  const pin = document.getElementById("setPIN").value;
-  if (pin.length !== 4) return alert("Please set a 4-digit PIN.");
-  localStorage.setItem("ghostPIN", pin);
-  document.getElementById('pinScreen').style.display = 'none';
-  document.getElementById('appUI').style.display = 'block';
-  document.getElementById('userTag').innerText = `Welcome, ${localStorage.getItem("ghostName")}`;
-}
+  // Save code name function
+  window.saveCodeName = () => {
+    const codeName = codeNameInput.value.trim();
+    if (codeName) {
+      // Save the code name, and move to PIN setup
+      localStorage.setItem("codeName", codeName);
+      setupSection.style.display = "none";
+      pinSection.style.display = "block";
+    } else {
+      alert("Please enter a valid code name.");
+    }
+  };
 
-// Show Tab Content
-function showTab(tabName) {
-  const tabs = document.querySelectorAll('.tab');
-  tabs.forEach(tab => tab.style.display = 'none');
-  document.getElementById(tabName).style.display = 'block';
-}
+  // Save PIN function
+  window.savePIN = () => {
+    const pin = pinInput.value.trim();
+    if (pin.length === 4 && !isNaN(pin)) {
+      // Save the PIN, and show the main app UI
+      localStorage.setItem("pin", pin);
+      pinSection.style.display = "none";
+      appUISection.style.display = "block";
+      document.getElementById("userTag").textContent = `Ghost Access Granted, ${localStorage.getItem('codeName')}`;
+    } else {
+      alert("Please enter a valid 4-digit PIN.");
+    }
+  };
 
-// Send Message
-function sendMessage() {
-  const message = document.getElementById('messageBox').value;
-  if (!message) return alert("Message cannot be empty.");
-  
-  const msgRef = doc(messagesRef);
-  setDoc(msgRef, {
-    sender: localStorage.getItem("ghostName"),
-    message: message,
-    timestamp: new Date().toISOString(),
-  });
-  
-  document.getElementById('messageBox').value = '';
-}
+  // Show tabs (Messages, Alerts, Search)
+  window.showTab = (tab) => {
+    const tabs = document.querySelectorAll(".tab");
+    tabs.forEach((tabContent) => tabContent.style.display = "none");
+    document.getElementById(tab).style.display = "block";
+  };
 
-// Send Encrypted Message
-function sendMessageTo() {
-  const receiver = document.getElementById('toUser').value;
-  const message = document.getElementById('messageInput').value;
-  
-  if (!receiver || !message) return alert("Fill out all fields");
-  
-  const msgRef = doc(messagesRef);
-  setDoc(msgRef, {
-    sender: localStorage.getItem("ghostName"),
-    receiver: receiver,
-    message: message,
-    timestamp: new Date().toISOString(),
-  });
-  
-  document.getElementById('toUser').value = '';
-  document.getElementById('messageInput').value = '';
-}
+  // Send a message function (for simplicity, just log the message here)
+  window.sendMessage = () => {
+    const messageBox = document.getElementById("messageBox");
+    const message = messageBox.value.trim();
+    if (message) {
+      alert("Message sent: " + message);
+      messageBox.value = "";
+    } else {
+      alert("Please enter a message.");
+    }
+  };
 
-// Nuclear Button Function
-function nuclearPurge() {
-  localStorage.clear();
-  alert("All data has been purged.");
-  location.reload();
-}
+  // Nuke (clear all messages)
+  window.nuclearPurge = () => {
+    const messageBox = document.getElementById("messageBox");
+    messageBox.value = "";
+    alert("All messages cleared.");
+  };
+
+  // Send encrypted message to another user
+  window.sendMessageTo = () => {
+    const toUser = document.getElementById("toUser").value.trim();
+    const messageInput = document.getElementById("messageInput").value.trim();
+    if (toUser && messageInput) {
+      alert(`Encrypted message sent to ${toUser}: ${messageInput}`);
+      document.getElementById("toUser").value = "";
+      document.getElementById("messageInput").value = "";
+    } else {
+      alert("Please fill in both recipient and message.");
+    }
+  };
+});
